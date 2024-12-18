@@ -16,10 +16,8 @@ export function activate(context: vscode.ExtensionContext) {
     const document = editor.document;
     const text = document.getText();
     const imageUrls = [...new Set(getImageUrls(text))];
-    console.log("imageUrls", imageUrls);
 
     for (const url of imageUrls) {
-      // setTimeout(async() => {
         try {
           const currentText = document.getText();
           const dimensions = await getImageDimensions(url);
@@ -29,35 +27,14 @@ export function activate(context: vscode.ExtensionContext) {
           const newText = currentText.replaceAll(pattern, (match) => {
             return `${match} =${dimensions.width}x${dimensions.height}`;
           });
-
-
-          // text = text.replace(pattern, (match) => {
-          //   if (imgSize[match]) {
-          //     return `${match} =${imgSize[match].width}x${imgSize[match].height}`;
-          //   }
-          //   return match;
-          // });
-
-          // const newText = `${url} =${dimensions.width}x${dimensions.height}`;
-          console.log("newText", newText);
           const edit = new vscode.WorkspaceEdit();
           const startPos = document.positionAt(0);
           const endPos = document.positionAt(newText.length);
           edit.replace(document.uri, new vscode.Range(startPos, endPos), newText);
           await vscode.workspace.applyEdit(edit);
-
-          // 将光标移到文档末尾
-          // const endPosition = document.positionAt(newText.length);
-          // editor.selection = new vscode.Selection(endPosition, endPosition);
-          // editor.revealRange(new vscode.Range(endPosition, endPosition));
-          // const startPos = document.positionAt(text.indexOf(url));
-          // const endPos = document.positionAt(text.indexOf(url) + url.length);
-          // edit.replace(document.uri, new vscode.Range(startPos, endPos), newText);
-          // await vscode.workspace.applyEdit(edit);
         } catch (error: any) {
           vscode.window.showErrorMessage(`Failed to get dimensions for ${url}: ${error.message}`);
         }
-      // });
     }
   });
   context.subscriptions.push(disposable);
@@ -99,21 +76,6 @@ function getImageDimensions(url: string): Promise<{ width: number, height: numbe
       });
     }).on('error', reject);
   });
-
-  // // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // // This line of code will only be executed once when your extension is activated
-  // console.log('Congratulations, your extension "markdown-set-web-img-size" is now active!');
-
-  // // The command has been defined in the package.json file
-  // // Now provide the implementation of the command with registerCommand
-  // // The commandId parameter must match the command field in package.json
-  // const disposable = vscode.commands.registerCommand('markdown-set-web-img-size.helloWorld', () => {
-  // 	// The code you place here will be executed every time your command is executed
-  // 	// Display a message box to the user
-  // 	vscode.window.showInformationMessage('Hello World from Markdown Set Web Img Size!');
-  // });
-
-  // context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
