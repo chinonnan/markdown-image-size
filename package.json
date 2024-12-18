@@ -1,7 +1,7 @@
 {
-  "name": "markdown-image-size",
-  "displayName": "Markdown Image Size",
-  "description": "A VS Code extension to fetch and set image sizes in Markdown files.",
+  "name": "markdown-set-web-image-size",
+  "displayName": "Markdown Set Web Image Size",
+  "description": "A VS Code extension to fetch and set web image sizes in Markdown files.",
   "version": "0.0.1",
   "publisher": "chenennan",
   "engines": {
@@ -19,7 +19,7 @@
     "commands": [
       {
         "command": "extension.getImageSizes",
-        "title": "Markdown: Set Image Sizes"
+        "title": "Markdown: 设置外链图片尺寸"
       }
     ],
     "menus": {
