@@ -45,7 +45,7 @@ function escapeRegExp(string: string): string {
 }
 
 function getImageUrls(text: string): string[] {
-  const regex = /!\[.*?\]\((https?:\/\/[^\s]+?\.(?:png|jpg|jpeg|gif))(?=\s*=\d*x\d*\s*\))?\)/g;
+  const regex = /!\[.*?\]\((https?:\/\/[^\s]+?\.(?:png|jpg|jpeg|gif)(\?[^\s]*)?)(?=\s*=\d*x\d*\s*\))?\)/g;
   const matches = [];
   let match;
   while ((match = regex.exec(text)) !== null) {
