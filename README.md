@@ -1,6 +1,6 @@
-# Markdown Image Size
+# Markdown Set Web Image Size
 
-Markdown Image Size 是一个 VS Code 扩展，用于在 Markdown 文件中获取并设置图像尺寸。
+Markdown Set Web Image Size 是一个 VS Code 扩展，用于在 Markdown 文件中获取并设置图像尺寸。
 
 ## 功能
 
@@ -10,14 +10,14 @@ Markdown Image Size 是一个 VS Code 扩展，用于在 Markdown 文件中获�
 ## 使用方法
 
 1. 打开一个包含图像 URL 的 Markdown 文件。
-2. 右键点击图像 URL，选择 `Markdown: Set Image Sizes`。
+2. 右键点击图像 URL，选择 `Markdown: 设置外链图片尺寸`。
 3. 或者，使用快捷键 `Ctrl+Alt+S`（Windows 和 Linux）或 `Cmd+Alt+S`（macOS）来触发命令。
 
 ## 安装
 
 1. 打开 VS Code。
 2. 进入扩展视图（按 `Ctrl+Shift+X`）。
-3. 搜索 `Markdown Image Size` 并点击安装。
+3. 搜索 `Markdown Set Web Image Size` 并点击安装。
 
 ## 配置
 
