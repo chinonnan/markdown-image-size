@@ -2,7 +2,7 @@
   "name": "markdown-set-web-image-size",
   "displayName": "Markdown Set Web Image Size",
   "description": "A VS Code extension to fetch and set web image sizes in Markdown files.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "chenennan",
   "engines": {
     "vscode": ">=1.86.0"
@@ -50,7 +50,18 @@
         "key": "ctrl+alt+s",
         "when": "editorLangId == markdown"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Markdown Set Web Image Size Configuration",
+      "properties": {
+        "markdownSetWebImageSize.enablePasteImageSize": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable automatically adding image size on paste."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

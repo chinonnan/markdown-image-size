@@ -6,12 +6,14 @@ Markdown Set Web Image Size 是一个 VS Code 扩展，用于在 Markdown 文件
 
 - 自动获取 Markdown 文件中图像的尺寸，并将尺寸信息添加到图像 URL 后。
 - 支持多种图像格式，包括 PNG、JPG、JPEG 和 GIF。
+- 粘贴外链图片时自动添加尺寸信息（可配置）。
 
 ## 使用方法
 
 1. 打开一个包含图像 URL 的 Markdown 文件。
 2. 右键点击图像 URL，选择 `Markdown: 设置外链图片尺寸`。
 3. 或者，使用快捷键 `Ctrl+Alt+S`（Windows 和 Linux）或 `Cmd+Alt+S`（macOS）来触发命令。
+4. 粘贴外链图片时，扩展会自动获取图像尺寸并添加到 URL 后。
 
 ## 安装
 
@@ -21,7 +23,15 @@ Markdown Set Web Image Size 是一个 VS Code 扩展，用于在 Markdown 文件
 
 ## 配置
 
-无需额外配置，安装后即可使用。
+扩展提供了一个配置项，用于控制粘贴时是否自动添加图像尺寸：
+
+- `markdownSetWebImageSize.enablePasteImageSize`：启用或禁用粘贴时自动添加图像尺寸，默认值为 `true`。
+
+### 配置方法
+
+1. 打开 VS Code 设置（按 `Ctrl+,`）。
+2. 搜索 `Markdown Set Web Image Size`。
+3. 找到 `Enable Paste Image Size` 配置项，并根据需要启用或禁用。
 
 ## 开发
 

@@ -7,6 +7,7 @@ import sizeOf from 'image-size';
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  console.log("Extension 'getImageSizes' is now active!");
   let disposable = vscode.commands.registerCommand('extension.getImageSizes', async () => {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
@@ -18,26 +19,72 @@ export function activate(context: vscode.ExtensionContext) {
     const imageUrls = [...new Set(getImageUrls(text))];
 
     for (const url of imageUrls) {
-        try {
-          const currentText = document.getText();
-          const dimensions = await getImageDimensions(url);
-          const escapedSrc = escapeRegExp(url);
-          const pattern = new RegExp(`(${escapedSrc})`, "g");
+      try {
+        const currentText = document.getText();
+        const dimensions = await getImageDimensions(url);
+        const escapedSrc = escapeRegExp(url);
+        const pattern = new RegExp(`(${escapedSrc})`, "g");
 
-          const newText = currentText.replaceAll(pattern, (match) => {
-            return `${match} =${dimensions.width}x${dimensions.height}`;
-          });
-          const edit = new vscode.WorkspaceEdit();
-          const startPos = document.positionAt(0);
-          const endPos = document.positionAt(newText.length);
-          edit.replace(document.uri, new vscode.Range(startPos, endPos), newText);
-          await vscode.workspace.applyEdit(edit);
-        } catch (error: any) {
-          vscode.window.showErrorMessage(`Failed to get dimensions for ${url}: ${error.message}`);
-        }
+        const newText = currentText.replaceAll(pattern, (match) => {
+          return `${match} =${dimensions.width}x${dimensions.height}`;
+        });
+        const edit = new vscode.WorkspaceEdit();
+        const startPos = document.positionAt(0);
+        const endPos = document.positionAt(newText.length);
+        edit.replace(document.uri, new vscode.Range(startPos, endPos), newText);
+        await vscode.workspace.applyEdit(edit);
+      } catch (error: any) {
+        vscode.window.showErrorMessage(`Failed to get dimensions for ${url}: ${error.message}`);
+      }
     }
   });
   context.subscriptions.push(disposable);
+
+  // 监听粘贴事件
+  vscode.workspace.onDidChangeTextDocument(async (event) => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || editor.document.languageId !== 'markdown') {
+      return;
+    }
+
+    // 读取配置项
+    const config = vscode.workspace.getConfiguration('markdownSetWebImageSize');
+    const enablePasteImageSize = config.get<boolean>('enablePasteImageSize', true);
+
+    if (!enablePasteImageSize) {
+      return;
+    }
+
+    const changes = event.contentChanges;
+    for (const change of changes) {
+      let pastedText = change.text;
+      const imageUrls = getImageUrls(pastedText);
+      if (imageUrls.length > 0) {
+        for (const url of imageUrls) {
+          try {
+            const dimensions = await getImageDimensions(url);
+            const escapedSrc = escapeRegExp(url);
+            const pattern = new RegExp(`(${escapedSrc})`, "g");
+
+            const newText = pastedText.replace(pattern, (match) => {
+              return `${match} =${dimensions.width}x${dimensions.height}`;
+            });
+
+            pastedText = newText
+
+            const edit = new vscode.WorkspaceEdit();
+            // const newEditor = vscode.window.activeTextEditor;
+            const startPos = editor.document.positionAt(change.rangeOffset);
+            const endPos = editor.document.positionAt(change.rangeOffset + pastedText.length);
+            edit.replace(editor.document.uri, new vscode.Range(startPos, endPos), newText);
+            await vscode.workspace.applyEdit(edit);
+          } catch (error: any) {
+            vscode.window.showErrorMessage(`Failed to get dimensions for ${url}: ${error.message}`);
+          }
+        }
+      }
+    }
+  });
 }
 
 function escapeRegExp(string: string): string {
