@@ -16,25 +16,22 @@ export function activate(context: vscode.ExtensionContext) {
     }
     const document = editor.document;
     const text = document.getText();
-    const imageUrls = [...new Set(getImageUrls(text))];
+    const imageObj = getImageUrls(text)
 
-    for (const url of imageUrls) {
+    for (const img of imageObj) {
       try {
         const currentText = document.getText();
-        const dimensions = await getImageDimensions(url);
-        const escapedSrc = escapeRegExp(url);
-        const pattern = new RegExp(`(${escapedSrc})`, "g");
+        const dimensions = await getImageDimensions(img.url);
 
-        const newText = currentText.replaceAll(pattern, (match) => {
-          return `${match} =${dimensions.width}x${dimensions.height}`;
-        });
+        const newText = currentText.replaceAll(img.fullText,
+          img.fullText.substring(0, img.fullText.lastIndexOf(')')) + ` =${dimensions.width}x${dimensions.height})`);
         const edit = new vscode.WorkspaceEdit();
         const startPos = document.positionAt(0);
         const endPos = document.positionAt(newText.length);
         edit.replace(document.uri, new vscode.Range(startPos, endPos), newText);
         await vscode.workspace.applyEdit(edit);
       } catch (error: any) {
-        vscode.window.showErrorMessage(`Failed to get dimensions for ${url}: ${error.message}`);
+        vscode.window.showErrorMessage(`Failed to get dimensions for ${img.url}: ${error.message}`);
       }
     }
   });
@@ -58,46 +55,41 @@ export function activate(context: vscode.ExtensionContext) {
     const changes = event.contentChanges;
     for (const change of changes) {
       let pastedText = change.text;
-      const imageUrls = getImageUrls(pastedText);
-      if (imageUrls.length > 0) {
-        for (const url of imageUrls) {
-          try {
-            const dimensions = await getImageDimensions(url);
-            const escapedSrc = escapeRegExp(url);
-            const pattern = new RegExp(`(${escapedSrc})`, "g");
 
-            const newText = pastedText.replace(pattern, (match) => {
-              return `${match} =${dimensions.width}x${dimensions.height}`;
-            });
+      const imageObj = getImageUrls(pastedText)
 
-            pastedText = newText
+      for (const img of imageObj) {
+        try {
+          const dimensions = await getImageDimensions(img.url);
 
-            const edit = new vscode.WorkspaceEdit();
-            // const newEditor = vscode.window.activeTextEditor;
-            const startPos = editor.document.positionAt(change.rangeOffset);
-            const endPos = editor.document.positionAt(change.rangeOffset + pastedText.length);
-            edit.replace(editor.document.uri, new vscode.Range(startPos, endPos), newText);
-            await vscode.workspace.applyEdit(edit);
-          } catch (error: any) {
-            vscode.window.showErrorMessage(`Failed to get dimensions for ${url}: ${error.message}`);
-          }
+          const newText = pastedText.replaceAll(img.fullText,
+            img.fullText.substring(0, img.fullText.lastIndexOf(')')) + ` =${dimensions.width}x${dimensions.height})`);
+
+          pastedText = newText;
+
+          const edit = new vscode.WorkspaceEdit();
+          const startPos = editor.document.positionAt(change.rangeOffset);
+          const endPos = editor.document.positionAt(change.rangeOffset + pastedText.length);
+          edit.replace(editor.document.uri, new vscode.Range(startPos, endPos), newText);
+          await vscode.workspace.applyEdit(edit);
+        } catch (error: any) {
+          vscode.window.showErrorMessage(`Failed to get dimensions for ${img.url}: ${error.message}`);
         }
       }
     }
   });
 }
-
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& 表示整个匹配的字符串
-}
-
-function getImageUrls(text: string): string[] {
-  const regex = /!\[.*?\]\((https?:\/\/[^\s]+?\.(?:png|jpg|jpeg|gif)(\?[^\s]*)?)(?=\s*=\d*x\d*\s*\))?\)/g;
-  const matches = [];
-  let match;
+function getImageUrls(text: string): { fullText: string; url: string }[] {
+  const regex = /!\[.*?\]\((https?:\/\/[^\s]+?\.(?:png|jpg|jpeg|gif)(\?[^\s]*)?)(?:\s+"[^"]*")?\)(?!\s*=\d*x\d*\s*)/g;
+  const matches: { fullText: string; url: string }[] = [];
+  let match: any[] | null;
   while ((match = regex.exec(text)) !== null) {
-    if (!match[1].match(/\s*=\d*x\d*$/)) {
-      matches.push(match[1]);
+    console.log("match", match)
+    if (!matches.find(i => i.fullText === match?.[0]) && !match[1].match(/\s*=\d*x\d*$/)) {
+      matches.push({
+        fullText: match[0],
+        url: match[1]
+      });
     }
   }
   return matches;
